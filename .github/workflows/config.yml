@@ -1,0 +1,27 @@
+name: Create Jira from TODO
+on: 
+  push:
+    branches:
+      - main
+jobs:
+  create_jira_from_todo:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Get Diff From Commits
+        id: get_changes_files
+        run: |
+          commit_sha = ${{ github.sha }}
+          previous_commit_sha = $(git rev-parse $commit_sha^)
+          changedFiles = $(git diff --name-only $previous_commit_sha $commit_sha)
+          echo "changed_files=${changedFiles}" >> "$GITHUB_OUTPUT"
+      - name : Create Jira from TODO
+        uses: ./
+        with: 
+          token: ${{ secrets.GITHUB_TOKEN }}
+          jiraId: ${{ steps.get_changes_files.outputs.changed_files }}
+          orgUrl: 'https://mock-jira-enterprise.atlassian.net'
+          jiraToken: ${{ secrets.JIRA_TOKEN }}
+          username: ${{ secrets.PR_USERNAME }}

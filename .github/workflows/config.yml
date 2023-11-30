@@ -13,9 +13,9 @@ jobs:
       - name: Get Diff From Commits
         id: get_changes_files
         run: |
-          commit_sha = $(git rev-parse ${{ github.sha }})
-          base_commit = $(git merge-base ${{ github.event.before }} ${{ github.sha }} )
-          addedLines=$(git diff --unified=0 $base_commit $commit_sha | grep -E '^\+(?!$)' | sed -n -e 's|^\+\+\+ b/\(.*\)|File: \1|p; /^\+/p' | sed 's/^+//')
+          commit_sha=$(git rev-parse ${{ github.sha }})
+          common_commit=$(git merge-base ${{ github.event.before }} ${{ github.sha }} )
+          addedLines=$(git diff --unified=0 $common_commit $commit_sha | grep -E '^\+(?!$)' | sed -n -e 's|^\+\+\+ b/\(.*\)|File: \1|p; /^\+/p' | sed 's/^+//')
           echo "added_lines=${addedLines}" >> "$GITHUB_OUTPUT"
       - name : Create Jira from TODO
         uses: ./
